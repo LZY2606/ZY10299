@@ -15,6 +15,7 @@ import static org.paseto4j.commons.Version.V4;
 
 import java.security.MessageDigest;
 import java.util.Arrays;
+import org.paseto4j.commons.PasetoException;
 import org.paseto4j.commons.PreAuthenticationEncoder;
 import org.paseto4j.commons.SecretKey;
 import org.paseto4j.commons.Token;
@@ -82,6 +83,7 @@ public class PasetoLocal {
 
     // 4
     byte[] nct = getUrlDecoder().decode(pasetoToken.getPayload());
+    verify(nct.length >= 64, "Token payload is too short");
     byte[] nonce = Arrays.copyOfRange(nct, 0, 32);
     byte[] t = Arrays.copyOfRange(nct, nct.length - 32, nct.length);
     byte[] c = Arrays.copyOfRange(nct, 32, nct.length - 32);
@@ -107,7 +109,7 @@ public class PasetoLocal {
 
       // 8
       if (!MessageDigest.isEqual(t, t2)) {
-        throw new IllegalStateException("HMAC verification failed");
+        throw new PasetoException("HMAC verification failed");
       }
 
       message = CryptoFunctions.xchacha20(c, n2, ek);

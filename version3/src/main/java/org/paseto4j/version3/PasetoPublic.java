@@ -82,6 +82,7 @@ class PasetoPublic {
 
     // 3
     byte[] sm = getUrlDecoder().decode(token.getPayload());
+    verify(sm.length >= 96, "Token payload is too short");
     byte[] signature = Arrays.copyOfRange(sm, sm.length - 96, sm.length);
     byte[] message = Arrays.copyOfRange(sm, 0, sm.length - 96);
 

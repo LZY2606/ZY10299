@@ -7,6 +7,7 @@ package org.paseto4j.version2;
 import static java.nio.charset.StandardCharsets.UTF_8;
 import static java.util.Base64.getUrlDecoder;
 import static java.util.Objects.requireNonNull;
+import static org.paseto4j.commons.Conditions.verify;
 import static org.paseto4j.commons.ByteUtils.concat;
 import static org.paseto4j.commons.PreAuthenticationEncoder.encode;
 import static org.paseto4j.commons.Purpose.PURPOSE_PUBLIC;
@@ -57,6 +58,7 @@ class PasetoPublic {
 
     // 3
     byte[] sm = getUrlDecoder().decode(pasetoToken.getPayload());
+    verify(sm.length >= 64, "Token payload is too short");
     byte[] signature = Arrays.copyOfRange(sm, sm.length - 64, sm.length);
     byte[] message = Arrays.copyOfRange(sm, 0, sm.length - 64);
 

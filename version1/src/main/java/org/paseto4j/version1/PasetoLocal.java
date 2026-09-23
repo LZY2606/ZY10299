@@ -8,6 +8,7 @@ import static java.nio.charset.StandardCharsets.UTF_8;
 import static java.util.Base64.getUrlDecoder;
 import static java.util.Objects.requireNonNull;
 import static org.paseto4j.commons.ByteUtils.concat;
+import static org.paseto4j.commons.Conditions.verify;
 import static org.paseto4j.commons.PreAuthenticationEncoder.encode;
 import static org.paseto4j.commons.Purpose.PURPOSE_LOCAL;
 import static org.paseto4j.commons.Version.V1;
@@ -21,6 +22,7 @@ import java.security.MessageDigest;
 import java.security.Security;
 import java.util.Arrays;
 import org.bouncycastle.jce.provider.BouncyCastleProvider;
+import org.paseto4j.commons.PasetoException;
 import org.paseto4j.commons.SecretKey;
 import org.paseto4j.commons.Token;
 import org.paseto4j.commons.TokenOut;
@@ -93,6 +95,7 @@ class PasetoLocal {
 
     // 3
     byte[] ct = getUrlDecoder().decode(pasetoToken.getPayload());
+    verify(ct.length >= 80, "Token payload is too short");
     byte[] nonce = Arrays.copyOfRange(ct, 0, 32);
     byte[] t = Arrays.copyOfRange(ct, ct.length - 48, ct.length);
     byte[] c = Arrays.copyOfRange(ct, 32, ct.length - 48);
@@ -109,7 +112,7 @@ class PasetoLocal {
 
     // 7
     if (!MessageDigest.isEqual(t, t2)) {
-      throw new IllegalStateException("HMAC verification failed");
+      throw new PasetoException("HMAC verification failed");
     }
 
     // 8

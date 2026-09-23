@@ -7,6 +7,7 @@ package org.paseto4j.version2;
 import static java.nio.charset.StandardCharsets.UTF_8;
 import static java.util.Objects.requireNonNull;
 import static org.paseto4j.commons.ByteUtils.concat;
+import static org.paseto4j.commons.Conditions.verify;
 import static org.paseto4j.commons.Purpose.PURPOSE_LOCAL;
 import static org.paseto4j.commons.Version.V2;
 
@@ -89,6 +90,9 @@ class PasetoLocal {
 
     // 3
     byte[] ct = Base64.getUrlDecoder().decode(pasetoToken.getPayload());
+    verify(
+        ct.length >= AEAD.XCHACHA20POLY1305_IETF_NPUBBYTES + AEAD.XCHACHA20POLY1305_IETF_ABYTES,
+        "Token payload is too short");
     byte[] nonce = Arrays.copyOfRange(ct, 0, AEAD.XCHACHA20POLY1305_IETF_NPUBBYTES);
     byte[] encryptedMessage =
         Arrays.copyOfRange(ct, AEAD.XCHACHA20POLY1305_IETF_NPUBBYTES, ct.length);
